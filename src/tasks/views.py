@@ -56,7 +56,7 @@ class TaskResultsOverviewViewSet(ListModelMixin, GenericViewSet):
     entry.
     """
 
-    lookup_field = "schedule_entry_name"
+    lookup_field = "schedule_entry_id"
     queryset = ScheduleEntry.objects.all()
     serializer_class = TaskResultsOverviewSerializer
 
@@ -78,7 +78,7 @@ class MultipleFieldLookupMixin(object):
         base_queryset = super(MultipleFieldLookupMixin, self).get_queryset()
         base_queryset = self.filter_queryset(base_queryset)
 
-        filter = {"schedule_entry__name": self.kwargs["schedule_entry_name"]}
+        filter = {"schedule_entry__id": self.kwargs["schedule_entry_id"]}
         if not self.request.user.is_staff:
             filter.update({"schedule_entry__is_private": False})
 
@@ -115,7 +115,7 @@ class TaskResultListViewSet(ListModelMixin, GenericViewSet):
         IsAdminOrOwnerOrReadOnly
     ]
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
-    lookup_fields = ("schedule_entry__name", "task_id")
+    lookup_fields = ("schedule_entry__id", "task_id")
     ordering_fields = ("task_id", "started", "finished", "duration", "status")
     search_fields = ("task_id", "status", "detail")
 
@@ -125,7 +125,7 @@ class TaskResultListViewSet(ListModelMixin, GenericViewSet):
         # request user.
         base_queryset = self.filter_queryset(self.queryset)
 
-        filter = {"schedule_entry__name": self.kwargs["schedule_entry_name"]}
+        filter = {"schedule_entry__id": self.kwargs["schedule_entry_id"]}
         if not self.request.user.is_staff:
             filter.update({"schedule_entry__is_private": False})
 
@@ -189,7 +189,7 @@ class TaskResultInstanceViewSet(
     permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
         IsAdminOrOwnerOrReadOnly
     ]
-    lookup_fields = ("schedule_entry__name", "task_id")
+    lookup_fields = ("schedule_entry__id", "task_id")
 
     @action(detail=True)
     def archive(self, request, version, schedule_entry_name, task_id):

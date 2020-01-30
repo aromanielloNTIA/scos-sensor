@@ -17,24 +17,24 @@ urlpatterns = (
         name="task-results-overview",
     ),
     path(
-        "completed/<slug:schedule_entry_name>/",
+        "completed/<int:schedule_entry_id>/",
         view=TaskResultListViewSet.as_view({"get": "list", "delete": "destroy_all"}),
         name="task-result-list",
     ),
     path(
-        "completed/<slug:schedule_entry_name>/archive/",
+        "completed/<int:schedule_entry_id>/archive/",
         view=TaskResultListViewSet.as_view({"get": "archive"}),
         name="task-result-list-archive",
     ),
     path(
-        "completed/<slug:schedule_entry_name>/<int:task_id>/",
+        "completed/<int:schedule_entry_id>/<int:task_id>/",
         view=TaskResultInstanceViewSet.as_view(
             {"get": "retrieve", "delete": "destroy"}
         ),
         name="task-result-detail",
     ),
     path(
-        "completed/<slug:schedule_entry_name>/<int:task_id>/archive",
+        "completed/<int:schedule_entry_id>/<int:task_id>/archive",
         view=TaskResultInstanceViewSet.as_view({"get": "archive"}),
         name="task-result-archive",
     ),

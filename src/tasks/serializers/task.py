@@ -16,6 +16,6 @@ class TaskSerializer(serializers.Serializer):
 
     def get_schedule_entry(self, obj):
         request = self.context["request"]
-        kws = {"pk": obj.schedule_entry_name}
+        kws = {"pk": obj.schedule_entry_id}
         kws.update(V1)
         return reverse("schedule-detail", kwargs=kws, request=request)

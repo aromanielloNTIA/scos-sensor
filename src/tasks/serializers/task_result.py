@@ -11,7 +11,7 @@ from .acquisition import AcquisitionSerializer
 class TaskResultHyperlinkedRelatedField(serializers.HyperlinkedRelatedField):
     # django-rest-framework.org/api-guide/relations/#custom-hyperlinked-fields
     def get_url(self, obj, view_name, request, format):
-        kws = {"schedule_entry_name": obj.schedule_entry.name, "task_id": obj.task_id}
+        kws = {"schedule_entry_id": obj.schedule_entry.id, "task_id": obj.task_id}
         kws.update(V1)
         url = reverse(view_name, kwargs=kws, request=request, format=format)
         return url
@@ -46,7 +46,7 @@ class TaskResultsOverviewSerializer(serializers.HyperlinkedModelSerializer):
 
         request = self.context["request"]
         route = "task-result-list-archive"
-        kws = {"schedule_entry_name": obj.name}
+        kws = {"schedule_entry_id": obj.id}
         kws.update(V1)
         url = reverse(route, kwargs=kws, request=request)
         return url
@@ -54,7 +54,7 @@ class TaskResultsOverviewSerializer(serializers.HyperlinkedModelSerializer):
     def get_task_results(self, obj):
         request = self.context["request"]
         route = "task-result-list"
-        kws = {"schedule_entry_name": obj.name}
+        kws = {"schedule_entry_id": obj.id}
         kws.update(V1)
         url = reverse(route, kwargs=kws, request=request)
         return url
@@ -65,7 +65,7 @@ class TaskResultsOverviewSerializer(serializers.HyperlinkedModelSerializer):
     def get_schedule_entry(self, obj):
         request = self.context["request"]
         route = "schedule-detail"
-        kws = {"pk": obj.name}
+        kws = {"pk": obj.id}
         kws.update(V1)
         url = reverse(route, kwargs=kws, request=request)
         return url
@@ -100,7 +100,7 @@ class TaskResultSerializer(serializers.HyperlinkedModelSerializer):
     def get_schedule_entry(self, obj):
         request = self.context["request"]
         route = "schedule-detail"
-        kws = {"pk": obj.schedule_entry.name}
+        kws = {"pk": obj.schedule_entry.id}
         kws.update(V1)
         url = reverse(route, kwargs=kws, request=request)
 

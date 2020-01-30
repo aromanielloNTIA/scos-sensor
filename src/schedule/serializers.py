@@ -187,7 +187,7 @@ class ScheduleEntrySerializer(serializers.HyperlinkedModelSerializer):
 
     def get_task_results(self, obj):
         request = self.context["request"]
-        kws = {"schedule_entry_name": obj.name}
+        kws = {"schedule_entry_id": obj.id}
         kws.update(V1)
         url = reverse("task-result-list", kwargs=kws, request=request)
         return url
@@ -211,13 +211,7 @@ class ScheduleEntrySerializer(serializers.HyperlinkedModelSerializer):
             "start",
             "stop",
             "interval",
-            "is_active",
-            "priority",
-            "next_task_time",
-            "next_task_id",
-            "created",
-            "modified",
-            "owner",
+            "priority"
         ]
         for field in FIELDS_TO_INCLUDE:
             if field in data:

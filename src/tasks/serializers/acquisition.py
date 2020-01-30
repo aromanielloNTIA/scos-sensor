@@ -9,7 +9,7 @@ class AcquisitionHyperlinkedRelatedField(serializers.HyperlinkedRelatedField):
     # django-rest-framework.org/api-guide/relations/#custom-hyperlinked-fields
     def get_url(self, obj, view_name, request, format):
         kws = {
-            "schedule_entry_name": obj.task_result.schedule_entry.name,
+            "schedule_entry_id": obj.task_result.schedule_entry.id,
             "task_id": obj.task_result.task_id,
         }
         kws.update(V1)
@@ -30,5 +30,5 @@ class AcquisitionSerializer(serializers.ModelSerializer):
         model = Acquisition
         fields = ("recording_id", "archive", "metadata")
         extra_kwargs = {
-            "schedule_entry": {"view_name": "schedule-detail", "lookup_field": "name"}
+            "schedule_entry": {"view_name": "schedule-detail", "lookup_field": "id"}
         }

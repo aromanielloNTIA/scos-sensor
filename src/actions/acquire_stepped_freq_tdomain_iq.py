@@ -119,13 +119,17 @@ class SteppedFrequencyTimeDomainIqAcquisition(Action):
         for recording_id, measurement_params in enumerate(
             self.measurement_params_list, start=1
         ):
+            start_time = utils.get_datetime_str_now()
             data = self.acquire_data(measurement_params, task_id)
+            end_time = utils.get_datetime_str_now()
             sigmf_md = self.build_sigmf_md(
                 task_id,
                 measurement_params,
                 data,
                 task_result.schedule_entry,
                 recording_id,
+                start_time,
+                end_time
             )
             self.archive(task_result, recording_id, data, sigmf_md)
 
@@ -141,7 +145,7 @@ class SteppedFrequencyTimeDomainIqAcquisition(Action):
             raise RuntimeError(msg)
 
     def acquire_data(self, measurement_params, task_id):
-        self.configure_sdr(measurement_params)
+        self.configure_sdr(measurement_params, start_time, stop_time)
 
         # Use the radio's actual reported sample rate instead of requested rate
         sample_rate = self.sdr.radio.sample_rate
@@ -161,7 +165,7 @@ class SteppedFrequencyTimeDomainIqAcquisition(Action):
         return data
 
     def build_sigmf_md(
-        self, task_id, measurement_params, data, schedule_entry, recording_id
+        self, task_id, measurement_params, data, schedule_entry, recording_id, start_time, end_time
     ):
         # Build global metadata
         sigmf_md = SigMFFile()
@@ -171,6 +175,17 @@ class SteppedFrequencyTimeDomainIqAcquisition(Action):
         sample_rate = self.sdr.radio.sample_rate
         sigmf_md.set_global_field("core:sample_rate", sample_rate)
 
+        measurement_object = {
+            "start_time": start_time,
+            "end_time": end_time,
+            "domain": "Time",
+            "measurement_type": "survey" if self.is_multirecording else "single-frequency"
+        }
+        frequencies = self.get_frequencies(data, measurement_params)
+        measurement_object['low_frequency'] = frequencies[0]
+        measurement_object['high_frequency'] = frequencies[-1]
+        sigmf_md.set_global_field("ntia-core:measurement", measurement_object)
+
         sensor = capabilities["sensor"]
         sensor["id"] = settings.FQDN
         sigmf_md.set_global_field("ntia-sensor:sensor", sensor)
@@ -178,13 +193,15 @@ class SteppedFrequencyTimeDomainIqAcquisition(Action):
         action_def = {
             "name": self.name,
             "description": self.description,
-            "type": ["TimeDomain"],
+            "summary": self.description.splitlines()[0]
         }
 
         sigmf_md.set_global_field("ntia-scos:action", action_def)
-        sigmf_md.set_global_field("ntia-scos:task_id", task_id)
+        #sigmf_md.set_global_field("ntia-scos:task_id", task_id)
         if self.is_multirecording:
-            sigmf_md.set_global_field("ntia-scos:recording_id", recording_id)
+            sigmf_md.set_global_field("ntia-scos:recording", recording_id)
+
+        sigmf_md.set_global_field("ntia-scos:task", task_id)
 
         from schedule.serializers import ScheduleEntrySerializer
 
@@ -204,13 +221,18 @@ class SteppedFrequencyTimeDomainIqAcquisition(Action):
             start_index=0, length=num_samples, metadata=calibration_annotation_md
         )
 
+        time = range(0, (num_samples-1)*(1/sample_rate), (1/sample_rate))
+
         time_domain_detection_md = {
             "ntia-core:annotation_type": "TimeDomainDetection",
             "ntia-algorithm:detector": "sample_iq",
-            "ntia-algorithm:detection_domain": "time",
             "ntia-algorithm:number_of_samples": num_samples,
             "ntia-algorithm:units": "volts",
             "ntia-algorithm:reference": "not referenced",
+            "ntia-algorithm:time": time,
+            "ntia-algorithm:time_start": 0,
+            "ntia-algorithm:time_stop": time[-1],
+            "ntia-algorithm:time_step": 1 / sample_rate
         }
         sigmf_md.add_annotation(
             start_index=0, length=num_samples, metadata=time_domain_detection_md

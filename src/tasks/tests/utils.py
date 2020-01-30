@@ -137,11 +137,11 @@ def reverse_result_list(schedule_entry_name):
     return reverse("task-result-list", kwargs=kws, request=request)
 
 
-def reverse_result_detail(schedule_entry_name, task_id):
+def reverse_result_detail(schedule_entry_id, task_id):
     rf = RequestFactory()
-    url = "/tasks/completed/" + schedule_entry_name + "/" + str(task_id)
+    url = "/tasks/completed/" + schedule_entry_id + "/" + str(task_id)
     request = rf.get(url, **HTTPS_KWARG)
-    kws = {"schedule_entry_name": schedule_entry_name, "task_id": task_id}
+    kws = {"schedule_entry_id": schedule_entry_id, "task_id": task_id}
     kws.update(V1)
     return reverse("task-result-detail", kwargs=kws, request=request)
 
@@ -180,14 +180,14 @@ def get_result_list(client, schedule_entry_name):
     return rjson["results"]
 
 
-def get_result_detail(client, schedule_entry_name, task_id):
-    url = reverse_result_detail(schedule_entry_name, task_id)
+def get_result_detail(client, schedule_entry_id, task_id):
+    url = reverse_result_detail(schedule_entry_id, task_id)
     response = client.get(url, **HTTPS_KWARG)
     return validate_response(response, status.HTTP_200_OK)
 
 
-def update_result_detail(client, schedule_entry_name, task_id, new_acquisition):
-    url = reverse_result_detail(schedule_entry_name, task_id)
+def update_result_detail(client, schedule_entry_id, task_id, new_acquisition):
+    url = reverse_result_detail(schedule_entry_id, task_id)
 
     kwargs = {
         "data": json.dumps(new_acquisition),

@@ -179,9 +179,11 @@ class SingleFrequencyFftAcquisition(Action):
 
         self.test_required_components()
         self.configure_sdr()
+        start_time = utils.get_datetime_str_now()
         data = self.acquire_data()
+        end_time = utils.get_datetime_str_now()
         m4s_data = self.apply_detector(data)
-        sigmf_md = self.build_sigmf_md(task_id, data, task_result.schedule_entry)
+        sigmf_md = self.build_sigmf_md(task_id, data, task_result.schedule_entry, start_time, end_time)
         self.archive(task_result, m4s_data, sigmf_md)
 
     def test_required_components(self):
@@ -212,7 +214,7 @@ class SingleFrequencyFftAcquisition(Action):
 
         return data
 
-    def build_sigmf_md(self, task_id, data, schedule_entry):
+    def build_sigmf_md(self, task_id, data, schedule_entry, start_time, end_time):
         logger.debug("Building SigMF metadata file")
 
         # Use the radio's actual reported sample rate instead of requested rate
@@ -224,18 +226,33 @@ class SingleFrequencyFftAcquisition(Action):
         )  # prevent GLOBAL_INFO from being modified by sigmf
         sigmf_md.set_global_field("core:sample_rate", sample_rate)
 
+        measurement_object = {
+            "start_time": start_time,
+            "end_time": end_time,
+            "domain": "Frequency",
+            "measurement_type": "single-frequency"
+        }
+        frequencies = self.get_frequencies(data, self.measurement_params)
+        measurement_object['low_frequency'] = frequencies[0]
+        measurement_object['high_frequency'] = frequencies[-1]
+        sigmf_md.set_global_field("ntia-core:measurement", measurement_object)
+
         sensor = capabilities["sensor"]
         sensor["id"] = settings.FQDN
         sigmf_md.set_global_field("ntia-sensor:sensor", sensor)
+        from status.views import get_last_calibration_time
+        sigmf_md.set_global_field("ntia-sensor:calibration_datetime", get_last_calibration_time())
+
+        sigmf_md.set_global_field("ntia-scos:task", task_id)
 
         action_def = {
             "name": self.name,
             "description": self.description,
-            "type": ["FrequencyDomain"],
+            "summary": self.description.splitlines()[0]
         }
 
         sigmf_md.set_global_field("ntia-scos:action", action_def)
-        sigmf_md.set_global_field("ntia-scos:task_id", task_id)
+        # sigmf_md.set_global_field("ntia-scos:task_id", task_id)
 
         from schedule.serializers import ScheduleEntrySerializer
 
@@ -261,7 +278,10 @@ class SingleFrequencyFftAcquisition(Action):
                 "ntia-algorithm:number_of_ffts": self.measurement_params.num_ffts,
                 "ntia-algorithm:units": "dBm",
                 "ntia-algorithm:reference": "not referenced",
-                "nita-algorithm:detection_domain": "frequency",
+                "ntia-algorithm:frequencies": frequencies,
+                "ntia-algorithm:frequency_start": frequencies[0],
+                "ntia-algorithm:frequency_stop": frequencies[-1],
+                "ntia-algorithm:frequency_step": frequencies[1] - frequencies[0],
             }
 
             sigmf_md.add_annotation(

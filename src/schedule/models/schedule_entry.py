@@ -65,7 +65,6 @@ class ScheduleEntry(models.Model):
     # `list(e.get_remaining_times())` from the example above on one.
 
     name = models.SlugField(
-        primary_key=True,
         help_text="[Required] The unique identifier used in URLs and filenames",
     )
     action = models.CharField(

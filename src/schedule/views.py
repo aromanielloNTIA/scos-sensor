@@ -36,7 +36,7 @@ class ScheduleEntryViewSet(ModelViewSet):
         IsAdminOrOwnerOrReadOnly
     ]
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
-    lookup_fields = ("schedule_entry__name", "task_id")
+    lookup_fields = ("schedule_entry__id", "task_id")
     ordering_fields = ("priority", "start", "next_task_time", "created", "modified")
     search_fields = ("name", "action")
 
