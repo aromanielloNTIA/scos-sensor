@@ -1,7 +1,8 @@
 Django~=3.0.7
 Pygments==2.4.2
 Markdown==3.1.1
-scos_actions @ git+${DOCKER_GIT_CREDENTIALS}/NTIA/scos_actions@generic_measurement_info#egg=scos_actions
+scos_sensor_keysight @ git+${DOCKER_GIT_CREDENTIALS}/NTIA/scos-sensor-keysight@radio_interface#egg=scos_sensor_keysight
+#scos_actions @ git+${DOCKER_GIT_CREDENTIALS}/NTIA/scos_actions@master#egg=scos_actions
 #scos_usrp @ git+${DOCKER_GIT_CREDENTIALS}/NTIA/scos_usrp@master#egg=scos_usrp
 coreapi==2.3.3
 django-debug-toolbar==2.2
@@ -14,7 +15,7 @@ environs==7.3.1
 gunicorn==19.9.0
 jsonfield==3.1.0
 numpy~=1.18.5
-psycopg2-binary==2.8.5
+psycopg2-binary~=2.8.5
 python-dateutil==2.8.1
 raven==6.10.0
 requests-futures==0.9.9
