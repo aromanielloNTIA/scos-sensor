@@ -329,7 +329,6 @@ LOGGING = {
         "tasks": {"handlers": ["console"], "level": LOGLEVEL},
         "scos_actions": {"handlers": ["console"], "level": LOGLEVEL},
         "scos_usrp": {"handlers": ["console"], "level": LOGLEVEL},
-        "scos_sensor_keysight": {"handlers": ["console"], "level": LOGLEVEL},
     },
 }
 
