@@ -17,6 +17,6 @@ python-dateutil==2.8.1
 raven==6.10.0
 requests-futures==0.9.9
 requests-mock==1.6.0
-scos_sensor_keysight @ git+${DOCKER_GIT_CREDENTIALS}/NTIA/scos-sensor-keysight@fullband_iq#egg=scos_sensor_keysight
+scos_sensor_keysight @ git+${DOCKER_GIT_CREDENTIALS}/NTIA/scos-keysight@fullband_iq#egg=scos_sensor_keysight
 six==1.14.0
 typing==3.6.6
