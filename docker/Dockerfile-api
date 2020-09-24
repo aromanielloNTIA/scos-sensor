@@ -42,4 +42,5 @@ ARG DOMAINS
 ARG IPS
 ARG SECRET_KEY
 
-RUN python3 manage.py collectstatic
+# MOCK_RADIO=1: temporary fix to prevent connection to radio while building
+RUN MOCK_RADIO=1 python3 manage.py collectstatic
